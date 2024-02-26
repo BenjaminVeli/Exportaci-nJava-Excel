@@ -10,14 +10,13 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.Arrays;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.table.DefaultTableModel;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.RegionUtil;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -31,22 +30,7 @@ public class CrearProductos extends javax.swing.JFrame {
    public CrearProductos() {
     initComponents(); 
 
-    txtSearch.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-        @Override
-        public void insertUpdate(javax.swing.event.DocumentEvent e) {
-            filterTable();
-        }
 
-        @Override
-        public void removeUpdate(javax.swing.event.DocumentEvent e) {
-            filterTable();
-        }
-
-        @Override
-        public void changedUpdate(javax.swing.event.DocumentEvent e) {
-            filterTable();
-        }
-    });
         
     Limpiar();
 
@@ -69,8 +53,6 @@ public class CrearProductos extends javax.swing.JFrame {
     private void initComponents() {
 
         jButton1 = new javax.swing.JButton();
-        jPanel3 = new javax.swing.JPanel();
-        txtSearch = new javax.swing.JTextField();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         txtArticulo = new javax.swing.JTextField();
@@ -100,32 +82,6 @@ public class CrearProductos extends javax.swing.JFrame {
         jButton1.setText("jButton1");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-
-        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Búsqueda "));
-        jPanel3.setToolTipText("");
-
-        txtSearch.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtSearchActionPerformed(evt);
-            }
-        });
-
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(20, 20, 20)
-                .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 339, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGap(16, 16, 16)
-                .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(21, Short.MAX_VALUE))
-        );
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Datos Productos"));
 
@@ -237,7 +193,7 @@ public class CrearProductos extends javax.swing.JFrame {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(txtPrecio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel3))))
-                .addGap(48, 48, 48)
+                .addGap(20, 20, 20)
                 .addComponent(btnGuardar)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnModificar)
@@ -325,9 +281,7 @@ public class CrearProductos extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jPanel13, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addComponent(jPanel13, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(20, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -336,13 +290,12 @@ public class CrearProductos extends javax.swing.JFrame {
                 .addGap(20, 20, 20)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGap(2, 2, 2)
                         .addComponent(jPanel13, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(20, 20, 20)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(22, 22, 22))
+                .addGap(20, 20, 20))
         );
 
         pack();
@@ -362,7 +315,7 @@ public class CrearProductos extends javax.swing.JFrame {
     private void btnModificarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModificarActionPerformed
         
          ProductosDAO objetoAlumno =  new ProductosDAO();
-         objetoAlumno.ModificarProductos(txtId, txtArticulo,  txtPrecio,txtModelo,txtMarca,txtUmed,archivoseleccionado);
+         objetoAlumno.ModificarProductos(txtId, txtArticulo,  txtModelo,txtMarca,txtUmed,txtPrecio);
          objetoAlumno.MostrarProductos(tbTotalProductos);   
         
     }//GEN-LAST:event_btnModificarActionPerformed
@@ -373,10 +326,6 @@ public class CrearProductos extends javax.swing.JFrame {
          objetoAlumno.EliminarProductos(txtId);
          objetoAlumno.MostrarProductos(tbTotalProductos);    
     }//GEN-LAST:event_btnEliminarActionPerformed
-
-    private void txtSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchActionPerformed
-        
-    }//GEN-LAST:event_txtSearchActionPerformed
 
     private void btnLimpiarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarActionPerformed
        Limpiar();
@@ -416,12 +365,7 @@ public class CrearProductos extends javax.swing.JFrame {
 
     }//GEN-LAST:event_tbTotalProductosMouseClicked
 
-    private void filterTable() {
-    String searchText = txtSearch.getText().trim();
-    ProductosDAO objetoAlumnos = new ProductosDAO();
-    objetoAlumnos.FiltrarProductos(tbTotalProductos, searchText);
-    }
-    
+
     public static void main(String args[]) {
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -460,7 +404,6 @@ public class CrearProductos extends javax.swing.JFrame {
 
 public static void exportarAPDFProductos() {
     try {
-        // Establecer conexión a la base de datos
         Connection connection = DriverManager.getConnection("jdbc:mysql://localhost/sistema", "root", "");
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT * FROM productos");
@@ -485,39 +428,46 @@ public static void exportarAPDFProductos() {
         XSSFCellStyle estiloCeldaNoNegrita = workbook.createCellStyle();
         estiloCeldaNoNegrita.setAlignment(HorizontalAlignment.CENTER);
         estiloCeldaNoNegrita.setVerticalAlignment(VerticalAlignment.CENTER);
+        estiloCeldaNoNegrita.setBorderTop(BorderStyle.THIN);
         estiloCeldaNoNegrita.setBorderLeft(BorderStyle.THIN);
         estiloCeldaNoNegrita.setBorderRight(BorderStyle.THIN);
+        estiloCeldaNoNegrita.setBorderBottom(BorderStyle.THIN);
         
         XSSFFont fontNoNegrita = workbook.createFont();
         fontNoNegrita.setFontHeightInPoints((short) 12);
         estiloCeldaNoNegrita.setFont(fontNoNegrita);
         estiloCeldaNoNegrita.setWrapText(true);
 
-        // Encabezados de columnas
+        
         String[] encabezados = {"COD", "ARTICULO", "MODELO", "MARCA", "U.MED",  "PRECIO", "FOTO"};
-        int rowNum = 0; // Empieza a escribir los datos desde la fila 0
+        int rowNum = 0; 
 
-        while (resultSet.next()) {
-            // Agrega un espacio después de cada conjunto de datos
-            if (rowNum != 0) {
-                rowNum+= 0;
-            }
-
-            // Agrega una fila para los encabezados
-            Row headersRow = sheet.createRow(rowNum++);
+        Row headersRow = sheet.createRow(rowNum++);
         for (int i = 0; i < encabezados.length; i++) {
             Cell cell = headersRow.createCell(i);
             cell.setCellValue(encabezados[i]);
             cell.setCellStyle(estiloCelda); 
         }
-            
-            
-            
+
+        sheet.addMergedRegion(new CellRangeAddress(
+            0, 
+            0, 
+            6, 
+            8  
+        ));
+
+        RegionUtil.setBorderTop(BorderStyle.THIN, sheet.getMergedRegion(0), sheet);
+        RegionUtil.setBorderLeft(BorderStyle.THIN, sheet.getMergedRegion(0), sheet);
+        RegionUtil.setBorderRight(BorderStyle.THIN, sheet.getMergedRegion(0), sheet);
+        RegionUtil.setBorderBottom(BorderStyle.THIN, sheet.getMergedRegion(0), sheet);
+
+        while (resultSet.next()) {
+            // Agrega una fila para los datos
             Row dataRow = sheet.createRow(rowNum++);
             dataRow.setHeightInPoints(85);
             for (int i = 0; i < encabezados.length; i++) {
                 Cell cell = dataRow.createCell(i);
-                String value = ""; // Inicializa el valor como cadena vacía
+                String value = ""; 
                 switch (i) {
                     case 0:
                         value = String.valueOf(resultSet.getInt("id"));
@@ -544,46 +494,53 @@ public static void exportarAPDFProductos() {
                 newCell.setCellValue(value);
                 newCell.setCellStyle(estiloCeldaNoNegrita);
             }
+           
+           
+            sheet.addMergedRegion(new CellRangeAddress(rowNum - 1, rowNum - 1, 6, 8));
+
             
-            // Insertar imagen si está disponible
+            int lastMergedRegionIndex = sheet.getNumMergedRegions() - 1; 
+            RegionUtil.setBorderTop(BorderStyle.THIN, sheet.getMergedRegion(lastMergedRegionIndex), sheet);
+            RegionUtil.setBorderLeft(BorderStyle.THIN, sheet.getMergedRegion(lastMergedRegionIndex), sheet);
+            RegionUtil.setBorderRight(BorderStyle.THIN, sheet.getMergedRegion(lastMergedRegionIndex), sheet);
+            RegionUtil.setBorderBottom(BorderStyle.THIN, sheet.getMergedRegion(lastMergedRegionIndex), sheet);
+
+            
+            
+           
             byte[] imageData = resultSet.getBytes("foto");
             if (imageData != null) {
                 int pictureIdx = workbook.addPicture(imageData, Workbook.PICTURE_TYPE_PNG);
                 CreationHelper helper = workbook.getCreationHelper();
                 Drawing drawing = sheet.createDrawingPatriarch();
                 ClientAnchor anchor = helper.createClientAnchor();
-                anchor.setCol1(6); // Coloca la imagen en la columna 8 (donde termina el último encabezado)
-                anchor.setRow1(rowNum - 1); // Alinea la imagen con la fila actual de datos
+                anchor.setCol1(6); 
+                anchor.setRow1(rowNum - 1); 
 
-                // Crear la imagen a partir del índice y el anclaje
+                
                 Picture pict = drawing.createPicture(anchor, pictureIdx);
 
-                // Obtener dimensiones de la imagen original
+                
                 int imageWidth = pict.getImageDimension().width;
                 int imageHeight = pict.getImageDimension().height;
 
-                // Calcular el factor de escala proporcional
-                double scaleFactorWidth = 1.0; // Factor de escala para el ancho
-                double scaleFactorHeight = 1.0; // Factor de escala para el alto
+               
+                double scaleFactorWidth = 1.0; 
+                double scaleFactorHeight = 1.0;
 
                 if (imageWidth > 0 && imageHeight > 0) {
-                    double targetWidth = 160.0; // Ancho deseado en píxeles (ajústalo según tus necesidades)
-                    double targetHeight = 100.0; // Alto deseado en píxeles (ajústalo según tus necesidades)
+                    double targetWidth = 160.0; 
+                    double targetHeight = 100.0; 
 
                     scaleFactorWidth = targetWidth / imageWidth;
                     scaleFactorHeight = targetHeight / imageHeight;
                 }
 
-                // Utiliza los factores de escala tanto para el ancho como para el alto
+               
                 pict.resize(scaleFactorWidth, scaleFactorHeight);
-                 }
+            }
         }
-        
 
-
-
-        
-        // Guardar el libro en un archivo temporal
         File tempFile = File.createTempFile("detalle", ".xlsx");
         try (FileOutputStream fileOut = new FileOutputStream(tempFile)) {
             workbook.write(fileOut);
@@ -592,7 +549,6 @@ public static void exportarAPDFProductos() {
             JOptionPane.showMessageDialog(null, "Error al exportar a Excel: " + e.toString());
         }
 
-        // Abrir el archivo Excel recién creado
         Desktop.getDesktop().open(tempFile);
 
     } catch (Exception e) {
@@ -629,7 +585,6 @@ public static void exportarAPDFProductos() {
     private javax.swing.JLabel jLabel8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel13;
-    private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lblimagen;
     private javax.swing.JTable tbTotalProductos;
@@ -638,7 +593,6 @@ public static void exportarAPDFProductos() {
     private javax.swing.JTextField txtMarca;
     private javax.swing.JTextField txtModelo;
     private javax.swing.JTextField txtPrecio;
-    private javax.swing.JTextField txtSearch;
     private javax.swing.JTextField txtUmed;
     private javax.swing.JTextField txtrutaimagen;
     // End of variables declaration//GEN-END:variables

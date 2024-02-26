@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.math.BigDecimal;
 import java.sql.CallableStatement;
 import java.sql.ResultSet;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -181,7 +182,7 @@ public void SeleccionarProducto(JTable paramTablaProductos, JTextField paramId, 
         }
     }
     
-   public void ModificarProductos(JTextField paramCodigo, JTextField paramArticulo, JTextField paramModelo, JTextField paramMarca, JTextField paramUmed,  JTextField paramPrecio, File nuevaFoto) {
+    public void ModificarProductos(JTextField paramCodigo, JTextField paramArticulo, JTextField paramModelo, JTextField paramMarca, JTextField paramUmed,  JTextField paramPrecio) {
         setCodigo(Integer.parseInt(paramCodigo.getText()));
         setArticulo(paramArticulo.getText());
         setModelo(paramModelo.getText());
@@ -191,18 +192,16 @@ public void SeleccionarProducto(JTable paramTablaProductos, JTextField paramId, 
 
         CConexion objetoConexion = new CConexion();
 
-        String consulta = "UPDATE Productos SET articulo=?, modelo=?, marca=?,  umed=?,  precio=?, foto=? WHERE id=?";
+        String consulta = "UPDATE Productos SET articulo=?, modelo=?, marca=?,  umed=?,  precio=? WHERE id=?";
 
         try {
-            FileInputStream fis = new FileInputStream(nuevaFoto);
             CallableStatement cs = objetoConexion.estableceConexion().prepareCall(consulta);
             cs.setString(1, getArticulo());
             cs.setString(2, getModelo());
             cs.setString(3, getMarca());
             cs.setString(4, getUmed());
             cs.setBigDecimal(5, getPrecio());
-            cs.setBinaryStream(6, fis, (int) nuevaFoto.length());
-            cs.setInt(7, getCodigo());
+            cs.setInt(6, getCodigo());
 
             int filasAfectadas = cs.executeUpdate();
 
@@ -236,54 +235,4 @@ public void SeleccionarProducto(JTable paramTablaProductos, JTextField paramId, 
     }
 }
     
-    public void FiltrarProductos(JTable paramTablaTotalProductos, String searchText) {
-    CConexion objetoConexion = new CConexion();
-    DefaultTableModel modelo = new DefaultTableModel();
-    TableRowSorter<TableModel> OrdenarTabla = new TableRowSorter<TableModel>(modelo);
-    paramTablaTotalProductos.setRowSorter(OrdenarTabla);
-
-    String sql = "";
-    modelo.addColumn("Id");
-    modelo.addColumn("Artículo");
-    modelo.addColumn("Modelo");
-    modelo.addColumn("Marca");
-    modelo.addColumn("UMed");
-    modelo.addColumn("Precio");
-    modelo.addColumn("Foto");
-    paramTablaTotalProductos.setModel(modelo);
-
-    if (!searchText.isEmpty()) {
-        sql = "SELECT * FROM productos WHERE articulo LIKE '%"   + searchText + "%' OR modelo LIKE '%" + searchText + "%' OR marca LIKE '%" + searchText + "%'";
-    } else {
-        sql = "SELECT * FROM productos";
-    }
-
-    String[] datos = new String[6];
-    Statement st;
-
-    try {
-        st = objetoConexion.estableceConexion().createStatement();
-        ResultSet rs = st.executeQuery(sql);
-
-        while (rs.next()) {
-            datos[0] = rs.getString(1);
-            datos[1] = rs.getString(2);
-            datos[2] = rs.getString(3);
-            datos[3] = rs.getString(4);
-            datos[4] = rs.getString(5);
-            datos[5] = rs.getString(6);
-            datos[6] = rs.getString(7);
-
-
-            modelo.addRow(datos);
-        }
-
-        paramTablaTotalProductos.setModel(modelo);
-
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "No se pudo mostrar los registros, error :  " + e.toString());
-    }
-}
-
-
 }

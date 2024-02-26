@@ -1,0 +1,147 @@
+public void exportarAPDFGeneral() {
+    try {
+        // Conexión a la base de datos
+        Connection connection = DriverManager.getConnection("jdbc:mysql://localhost/arrendamientos", "root", "");
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery("SELECT rent_calculation.id, datos_cli_prov.nombre AS cliente_nombre, cuarto.numcuarto, rent_calculation.mensual FROM rent_calculation INNER JOIN datos_cli_prov ON rent_calculation.client_id = datos_cli_prov.id INNER JOIN cuarto ON rent_calculation.room_id = cuarto.id");
+
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Alquiler Global");
+
+        // Crear estilo de celda con bordes y tamaño de letra 12
+        XSSFCellStyle estiloCelda = workbook.createCellStyle();
+        estiloCelda.setBorderBottom(BorderStyle.THIN);
+        estiloCelda.setBorderTop(BorderStyle.THIN);
+        estiloCelda.setBorderRight(BorderStyle.THIN);
+        estiloCelda.setBorderLeft(BorderStyle.THIN);
+
+        XSSFFont font = workbook.createFont();
+        font.setFontHeightInPoints((short) 12);
+        estiloCelda.setFont(font);
+
+ 
+
+        XSSFCellStyle estiloProforma = workbook.createCellStyle();
+        XSSFFont fontProforma = workbook.createFont();
+        fontProforma.setFontHeightInPoints((short) 20);
+        fontProforma.setBold(true);
+        fontProforma.setUnderline(FontUnderline.SINGLE);
+        estiloProforma.setFont(fontProforma);
+
+        Row proformaRow = sheet.createRow(0);
+        Cell proformaCellC = proformaRow.createCell(0);
+        proformaCellC.setCellValue("ALQUILER GLOBAL");
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 3));
+        proformaCellC.setCellStyle(estiloProforma);
+
+        
+        // Crear estilo de celda para centrar el contenido
+        CellStyle estiloCentrado = workbook.createCellStyle();
+        estiloCentrado.setAlignment(HorizontalAlignment.CENTER);
+
+        // Encabezados de columnas
+        Row headersRow = sheet.createRow(2);
+        headersRow.createCell(0).setCellValue("ID");
+        headersRow.createCell(1).setCellValue("Cuarto");
+        headersRow.createCell(2).setCellValue("Cliente");
+        headersRow.createCell(3).setCellValue("Mensualidad");
+
+        // Agrega los encabezados de las otras columnas según sea necesario
+
+        int rowNum = 4; // Empieza a escribir los datos desde la fila 3
+        while (resultSet.next()) {
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(resultSet.getInt("id"));
+            String numCuarto = resultSet.getString("numcuarto");
+            String textoCompleto = "CUARTO # " + numCuarto;
+            row.createCell(1).setCellValue(textoCompleto);
+            row.createCell(2).setCellValue(resultSet.getString("cliente_nombre"));
+            row.createCell(3).setCellValue(resultSet.getString("mensual"));
+
+            // Aplicar estilo centrado a las celdas de la fila actual
+            for (int i = 0; i < row.getLastCellNum(); i++) {
+                Cell cell = row.getCell(i);
+                if (cell != null) {
+                    cell.setCellStyle(estiloCentrado);
+                }
+            }
+        }
+
+        // Autoajustar el ancho de las columnas
+        for (int i = 0; i < headersRow.getLastCellNum(); i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        // Guardar el libro en un archivo temporal
+        File tempFile = File.createTempFile("detalle", ".xlsx");
+        try (FileOutputStream fileOut = new FileOutputStream(tempFile)) {
+            workbook.write(fileOut);
+            JOptionPane.showMessageDialog(null, "Datos exportados correctamente a Excel.");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error al exportar a Excel: " + e.toString());
+        }
+
+        // Abrir el archivo Excel recién creado
+        Desktop.getDesktop().open(tempFile);
+
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error: " + e.toString());
+    }
+}
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+  public void ModificarContrato(JTable tbAlquiler, JTextField id, JComboBox comboArrendador, JComboBox comboArrendatario, JComboBox comboGarante, JTextField paramPersona) {
+    CConexion objetoConexion = new CConexion();
+    String consulta = "UPDATE contrato SET id_rent_calculation=?, id_mantenimiento_arrendador=?,  id_mantenimiento_garante=? , personas=? WHERE id=?";
+
+    try {
+        CallableStatement cs = objetoConexion.estableceConexion().prepareCall(consulta);
+
+        int fila = tbAlquiler.getSelectedRow();
+
+        if (fila >= 0) {
+            int idContrato = Integer.parseInt(id.getText());
+            int idArrendador = (int) comboArrendador.getClientProperty(comboArrendador.getSelectedItem());
+            int idArrendatario = (int) comboArrendatario.getClientProperty(comboArrendatario.getSelectedItem());
+            Integer idGarante = null;
+
+            if (comboGarante.getSelectedItem() != null) {
+                idGarante = (int) comboGarante.getClientProperty(comboGarante.getSelectedItem());
+            }
+
+            Integer personas = null;
+            if (!paramPersona.getText().isEmpty()) {
+                personas = Integer.parseInt(paramPersona.getText());
+            }
+
+            cs.setInt(1, idArrendatario);
+            cs.setInt(2, idArrendador);
+            if (idGarante != null) {
+                cs.setInt(3, idGarante);
+            } else {
+                cs.setNull(3, java.sql.Types.INTEGER);
+            }
+            if (personas != null) {
+                cs.setInt(4, personas);
+            } else {
+                cs.setNull(4, java.sql.Types.INTEGER);
+            }
+            cs.setInt(5, idContrato);
+
+            cs.executeUpdate();
+
+            JOptionPane.showMessageDialog(null, "Contrato modificado correctamente");
+        } else {
+            JOptionPane.showMessageDialog(null, "Error al modificar contrato: No se ha seleccionado ningún contrato");
+        }
+    } catch (Exception e) {
+        JOptionPane.showMessageDialog(null, "Error al modificar contrato: " + e.toString());
+    }
+}
+
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
